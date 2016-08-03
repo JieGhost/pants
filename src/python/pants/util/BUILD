@@ -79,6 +79,14 @@ python_library(
 )
 
 python_library(
+  name = 'process_container_wrapper',
+  sources = ['process_container_wrapper.py'],
+  dependencies = [
+    ':meta',
+  ],
+)
+
+python_library(
   name = 'process_handler',
   sources = ['process_handler.py'],
 )
