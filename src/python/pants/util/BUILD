@@ -7,6 +7,14 @@ python_library(
 )
 
 python_library(
+  name = 'containerutil',
+  sources = ['containerutil.py'],
+  dependencies = [
+    ':meta',
+  ],
+)
+
+python_library(
    name = 'contextutil',
    sources = ['contextutil.py'],
    dependencies = [
@@ -76,14 +84,6 @@ python_library(
 python_library(
   name = 'osutil',
   sources = ['osutil.py'],
-)
-
-python_library(
-  name = 'process_container_wrapper',
-  sources = ['process_container_wrapper.py'],
-  dependencies = [
-    ':meta',
-  ],
 )
 
 python_library(
