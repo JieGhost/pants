@@ -218,6 +218,7 @@ python_tests(
   sources = ['test_worker_pool.py'],
   dependencies = [
     'src/python/pants/base:worker_pool',
+    'src/python/pants/base:workunit',
     'src/python/pants/util:contextutil',
   ]
 )

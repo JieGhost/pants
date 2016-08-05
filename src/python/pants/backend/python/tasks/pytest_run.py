@@ -11,6 +11,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import time
 import traceback
 from contextlib import contextmanager
@@ -30,6 +31,7 @@ from pants.base.hash_utils import Sharder
 from pants.base.workunit import WorkUnitLabel
 from pants.build_graph.target import Target
 from pants.task.testrunner_task_mixin import TestRunnerTaskMixin
+from pants.util.containerutil import ProcessContainerWrapperFactory
 from pants.util.contextutil import (environment_as, temporary_dir, temporary_file,
                                     temporary_file_path)
 from pants.util.dirutil import safe_mkdir, safe_open
@@ -94,6 +96,8 @@ class PytestRun(TestRunnerTaskMixin, PythonTask):
   @classmethod
   def register_options(cls, register):
     super(PytestRun, cls).register_options(register)
+    register('--sandbox', type=bool, default=False,
+             help='Run pytest in a sandbox with filesystem isolation.')
     register('--fast', type=bool, default=True,
              help='Run all tests in a single chroot. If turned off, each test target will '
                   'create a new chroot, which will be much slower, but more correct, as the'
@@ -548,8 +552,23 @@ class PytestRun(TestRunnerTaskMixin, PythonTask):
     # NB: We don't use pex.run(...) here since it makes a point of running in a clean environment,
     # scrubbing all `PEX_*` environment overrides and we use overrides when running pexes in this
     # task.
+    cmdline = pex.cmdline(args)
+    if self.get_options().sandbox:
+      testfiles = [os.path.abspath(arg) for arg in args if arg.endswith('.py')]
+      pcw = ProcessContainerWrapperFactory()
 
-    process = subprocess.Popen(pex.cmdline(args),
+      pcw.add_executable(pex._interpreter.binary)
+      pcw.add_dir(pex._pex)
+      for testfile in testfiles:
+        pcw.add_plain_file(testfile)
+        # Allow access to dir of testfile so that we can add to sys.path
+        pcw.add_dir_as_plain_file(os.path.dirname(testfile))
+        sys.path.append(os.path.dirname(testfile))
+
+      sb = pcw.write_sb_string(os.path.join(get_buildroot(), 'pants'))
+      cmdline = ['sandbox-exec', '-p', sb] + cmdline
+
+    process = subprocess.Popen(cmdline,
                                preexec_fn=os.setsid if setsid else None,
                                stdout=workunit.output('stdout'),
                                stderr=workunit.output('stderr'))
