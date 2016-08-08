@@ -7,7 +7,7 @@ python_tests(
   dependencies = [
     'src/python/pants/bin',
     'src/python/pants/util:contextutil',
-    'tests/python/pants_test/option:testing',
+    'tests/python/pants_test/option/util',
   ],
 )
 
@@ -77,9 +77,9 @@ python_tests(
     'src/python/pants/base:build_root',
     'src/python/pants/bin',
     'src/python/pants/fs',
-    'src/python/pants/util:dirutil',
     'src/python/pants/util:contextutil',
     'tests/python/pants_test:int-test',
+    'tests/python/pants_test/subsystem:subsystem_utils',
   ]
 )
 

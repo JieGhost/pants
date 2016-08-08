@@ -131,11 +131,14 @@ python_tests(
   dependencies=[
     ':scheduler_test_base',
     'src/python/pants/build_graph',
-    'tests/python/pants_test/engine/examples:parsers',
+    'src/python/pants/engine',
+    'src/python/pants/engine:graph',
     'src/python/pants/engine:mapper',
-    'src/python/pants/engine:storage',
+    'src/python/pants/engine:nodes',
+    'src/python/pants/engine:parser',
     'src/python/pants/engine:struct',
     'src/python/pants/util:dirutil',
+    'tests/python/pants_test/engine/examples:parsers',
   ]
 )
 
@@ -168,7 +171,7 @@ python_tests(
   ]
 )
 
-python_tests(
+python_library(
   name='scheduler_test_base',
   sources=['scheduler_test_base.py'],
   dependencies=[

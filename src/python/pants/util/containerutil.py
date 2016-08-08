@@ -14,8 +14,6 @@ from abc import abstractmethod
 from pants.util.meta import AbstractClass
 
 
-#from meta import AbstractClass
-
 class ProcessContainerWrapperFactory(object):
   """Create process container wapper based on underlying platform."""
 
@@ -192,7 +190,6 @@ class MacOSProcessContainerWrapper(ProcessContainerWrapper):
   def write_sb_string(self, buildroot='/'):
     sb = self.write_sb_default_header()
     sb += self.write_sb_file_path(buildroot)
-    #sb += '(deny file* (subpath "/Users/yujiec/workdir/opensource/pants"))'
 
     # TODO (Yujie Chen): Handle symlink here
     for f in self.all_files():
@@ -216,11 +213,18 @@ class LinuxProcessContainerWrapper(ProcessContainerWrapper):
 
 
 def main():
+  import argparse
+
+  parser = argparse.ArgumentParser(argument_default=argparse.SUPPRESS)
+  parser.add_argument('-S', default='.')
+  parser.add_argument('--exe', nargs='*')
+  args = parser.parse_args()
+
   pcw = ProcessContainerWrapperFactory()
 
-  pcw.add_executable('/bin/bash')
-  pcw.add_executable('/bin/ls')
-  pcw.copy_all_files('foo')
+  for exe in args.exe:
+    pcw.add_executable(exe)
+  pcw.copy_all_files(args.S)
   #pcw.invoke_sandbox('ls')
 
 if __name__ == '__main__':

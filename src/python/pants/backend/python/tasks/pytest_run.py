@@ -565,6 +565,10 @@ class PytestRun(TestRunnerTaskMixin, PythonTask):
         pcw.add_dir_as_plain_file(os.path.dirname(testfile))
         sys.path.append(os.path.dirname(testfile))
 
+      pcw.add_plain_file(os.path.join(os.getenv('HOME'), '.gitconfig'))
+      pcw.add_dir(os.path.join(os.getenv('HOME'), '.cache'))
+      pcw.add_plain_file(os.path.join(get_buildroot(), 'pants.ini'))
+      pcw.add_dir(os.path.join(get_buildroot(), '.git'))
       sb = pcw.write_sb_string(os.path.join(get_buildroot(), 'pants'))
       cmdline = ['sandbox-exec', '-p', sb] + cmdline
 
